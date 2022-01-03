@@ -38,6 +38,16 @@ build_script:
   - cmake --build . --config Release
   - cmake --build . --config Release --target install/strip
   - cd %APPVEYOR_BUILD_FOLDER%
+# QtApng for APNG
+  - cd 3rdparty
+  - git clone --branch detect-format-from-content --depth 1 https://github.com/BLumia/QtApng.git
+  - cd QtApng
+  - mkdir build
+  - cd build
+  - qmake "CONFIG+=libpng_static" ../
+  - mingw32-make
+  - mingw32-make install
+  - cd %APPVEYOR_BUILD_FOLDER%
 # install ECM so we can build KImageFormats
   - cd 3rdparty
   - git clone -q https://invent.kde.org/frameworks/extra-cmake-modules.git
