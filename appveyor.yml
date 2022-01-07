@@ -156,9 +156,25 @@ build_script:
   - copy %LIBAVIF%\libavif-0.9.0\LICENSE License.libavif.txt
   - copy %LIBEXIV2%\exiv2-0.27.5\COPYING License.exiv2.txt
 # TODO: Qt, zlib
+  - cd ..\..\
+  - mkdir cmakeinstall_root
+  - cd cmakeinstall_root
+  - xcopy C:\projects\cmake .\ /s /e /y
   - cd ..
+  - mkdir imageformats_plugins
+  - cd imageformats_plugins
+  - xcopy C:\Qt\5.15.2\mingw81_64\plugins\imageformats .\ /s /e /y
+  - cd ..
+
 # for debug..
   - tree /f
 
 artifacts:
   - path: build\bin
+    name: ppic
+
+  - path: build\cmakeinstall_root
+    name: cmake_install_root
+
+  - path: build\imageformats_plugins
+    name: qt5.15.2_plugins_imageformats
