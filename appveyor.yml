@@ -6,9 +6,10 @@ environment:
   LIBEXPAT: C:\projects\libexpat
   LIBAVIF: C:\projects\libavif
   LIBEXIV2: C:\projects\exiv2
+  PPKG: C:\projects\ppkg
   matrix:
     - build_name: mingw81_64_qt5_15_2
-      QTPATH: C:\Qt\5.15.2\mingw81_64
+      QTDIR: C:\Qt\5.15.2\mingw81_64
       MINGW64: C:\Qt\Tools\mingw810_64
 
 install:
@@ -17,9 +18,10 @@ install:
   - mkdir %LIBEXPAT%
   - mkdir %LIBAVIF%
   - mkdir %LIBEXIV2%
+  - mkdir %PPKG%
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init --recursive
-  - set PATH=%PATH%;%CMAKE_INSTALL_ROOT%;%QTPATH%\bin;%MINGW64%\bin
+  - set PATH=%PATH%;%CMAKE_INSTALL_ROOT%;%QTDIR%\bin;%MINGW64%\bin;%PPKG%
   - set CC=%MINGW64%\bin\gcc.exe
   - set CXX=%MINGW64%\bin\g++.exe
 
@@ -27,6 +29,9 @@ build_script:
 # prepare
   - mkdir 3rdparty
   - cinst ninja
+  - cd %PPKG%
+  - curl -fsSL -o ppkg.exe https://github.com/BLumia/pineapple-package-manager/releases/latest/download/ppkg.exe
+  - cd %APPVEYOR_BUILD_FOLDER%
 # download and install zlib for KArchive
   - cd %LIBZ%
   - curl -fsSL -o zlib1211.zip https://zlib.net/zlib1211.zip
@@ -40,13 +45,8 @@ build_script:
   - cd %APPVEYOR_BUILD_FOLDER%
 # QtApng for APNG
   - cd 3rdparty
-  - git clone --branch detect-format-from-content --depth 1 https://github.com/BLumia/QtApng.git
-  - cd QtApng
-  - mkdir build
-  - cd build
-  - qmake "CONFIG+=libpng_static" ../
-  - mingw32-make
-  - mingw32-make install
+  - curl -fsSL -o ppkg-QtApng.zip https://sourceforge.net/projects/pineapple-package-manager/files/packages/mingw-w64-x86_64-windows/QtApng-qt5.15.2-g6bff5a1.zip
+  - ppkg ppkg-QtApng.zip
   - cd %APPVEYOR_BUILD_FOLDER%
 # install ECM so we can build KImageFormats
   - cd 3rdparty
@@ -122,7 +122,7 @@ build_script:
   - cd kimageformats
   - mkdir build
   - cd build
-  - cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DKDE_INSTALL_QTPLUGINDIR=%QTPATH%\plugins
+  - cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DKDE_INSTALL_QTPLUGINDIR=%QTDIR%\plugins
   - cmake --build . --config Release
   - cmake --build . --config Release --target install/strip
   - cd %APPVEYOR_BUILD_FOLDER%
@@ -156,25 +156,9 @@ build_script:
   - copy %LIBAVIF%\libavif-0.9.0\LICENSE License.libavif.txt
   - copy %LIBEXIV2%\exiv2-0.27.5\COPYING License.exiv2.txt
 # TODO: Qt, zlib
-  - cd ..\..\
-  - mkdir cmakeinstall_root
-  - cd cmakeinstall_root
-  - xcopy C:\projects\cmake .\ /s /e /y
   - cd ..
-  - mkdir imageformats_plugins
-  - cd imageformats_plugins
-  - xcopy C:\Qt\5.15.2\mingw81_64\plugins\imageformats .\ /s /e /y
-  - cd ..
-
 # for debug..
   - tree /f
 
 artifacts:
   - path: build\bin
-    name: ppic
-
-  - path: build\cmakeinstall_root
-    name: cmake_install_root
-
-  - path: build\imageformats_plugins
-    name: qt5.15.2_plugins_imageformats
