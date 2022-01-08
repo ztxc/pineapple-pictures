@@ -59,13 +59,8 @@ build_script:
   - cd %APPVEYOR_BUILD_FOLDER%
 # install openexr for EXR format plugin from KImageFormats
   - cd 3rdparty
-  - git clone -b v3.1.3 --depth 1 https://github.com/AcademySoftwareFoundation/openexr.git
-  - cd openexr
-  - mkdir build
-  - cd build
-  - cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-D__STDC_FORMAT_MACROS=1 -DOPENEXR_INSTALL_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX%
-  - cmake --build . --config Release
-  - cmake --build . --config Release --target install/strip
+  - curl -fsSL -o ppkg-openexr.zip https://sourceforge.net/projects/pineapple-package-manager/files/packages/mingw-w64-x86_64-windows/openexr-3.1.3-1.zip
+  - ppkg ppkg-openexr.zip
   - cd %APPVEYOR_BUILD_FOLDER%
 # install AOM for libavif AV1 decoding support...
   - cd 3rdparty
@@ -144,7 +139,8 @@ build_script:
 # copy 3rdparty licenses for the libs we vendored for windows...
   - mkdir licenses
   - cd licenses
-  - copy %APPVEYOR_BUILD_FOLDER%\3rdparty\aom\LICENSE License.aom.txt
+# FIXME: copy license for redist
+#  - copy %APPVEYOR_BUILD_FOLDER%\3rdparty\aom\LICENSE License.aom.txt
   - copy %APPVEYOR_BUILD_FOLDER%\3rdparty\karchive\LICENSES\LGPL-2.0-or-later.txt License.KArchive.txt
   - copy %APPVEYOR_BUILD_FOLDER%\3rdparty\kimageformats\LICENSES\LGPL-2.1-or-later.txt License.kimageformats.txt
   - copy %LIBEXPAT%\libexpat-R_2_4_1\expat\COPYING License.expat.txt
